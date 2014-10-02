@@ -4,7 +4,7 @@
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="KeyCheck : Test the quality of your cryptographic keys">
+    <meta name="description" content="KeyCheck : Test your cryptographic keys">
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
@@ -19,7 +19,7 @@
           <a id="forkme_banner" href="https://github.com/DanielHomann/kc">View on GitHub</a>
 
           <h1 id="project_title">KeyCheck</h1>
-          <h2 id="project_tagline">Test the quality of your cryptographic keys</h2>
+          <h2 id="project_tagline">Test your cryptographic keys</h2>
 
             <section id="downloads">
               <a class="zip_download_link" href="https://github.com/DanielHomann/kc/zipball/master">Download this project as a .zip file</a>
@@ -31,37 +31,57 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+        <p>All cryptographic keys in your organization are chosen with the utmost care! OpenSSL always creates secure keys! Broken random number generators are never deployed! Really? How could you know for sure? </p>
 
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
+<p>Your organization deploys many keys every year? Due to ignorance or software bugs some of them might be chosen badly and therefore compromise the encryption and authenticity of your electronic communication.</p>
 
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
+<p>KeyCheck offers a solution to this problem by detecting weak keys ahead of their deployment. KeyCheck tests uploaded keys for several known weaknesses (common gcds, Debian weak key, nearly equal or small prime factors) and reports the result via an optional web-interface. The flexibility and easy expandability allow adapting easily to upcoming vulnerabilities by adding new tests or new clients to the web service. </p>
 
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+<p>Dependencies</p>
 
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+<ul>
+<li>relational database (only MySQL tested)</li>
+<li>python with standard library (tested version 2.7, version 3.x probably not running, the same holds for version 2.x with x &lt; 7)</li>
+<li>OpenSSL and openssl-vulnkey</li>
+<li>SQLalchemy</li>
+<li>Flask</li>
+<li>gmpy</li>
+<li>database driver (the SQLalchemy error message will tell you the name of the required driver) for python</li>
+</ul><p>Clone this repo for using KeyCheck
+Before starting KeyCheck open config.cfg and enter the correct database connection information in the section [db]
+The possible values for Type are described here: <a href="http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html">http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html</a>
+Host, User, Password should be self-explaining.</p>
 
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+<p>start keycheck from the directory kc with bin/keycheck.py 
+The option -h displays a help-page
+With the option --reset the initial database structure is created, all other data in the database is deleted</p>
 
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+<p>Examples of use:
+python bin/keycheck.py -c all -k 1 -f test-data/debian-weak/1
+Tests a sample key as user "all" with key reference 1 </p>
 
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
+<p>python bin/keycheck.py -c all -r 1
+Returns the result of test run 1 (watch out: test run is not the same as the key reference)</p>
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+<p>python bin/keycheck.py -b -s -f test-data/debian-weak/
+Batch import the whole directory. Names of files has to be numbers. -s specifes silent input</p>
 
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
+<p>python bin/keycheck.py -g -c global
+Execute global tests as user global</p>
 
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+<p>python web.py
+Starts the webserver. Open a new console for the following commands </p>
 
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
+<p>curl -L -F keyreference=1 -F key=@./1  <a href="http://127.0.0.1:5000/">http://127.0.0.1:5000/</a>
+Sends certificate file 1 with POST to the web server for testing. </p>
+
+<p>curl -L  <a href="http://127.0.0.1:5000/1">http://127.0.0.1:5000/1</a>
+Gets the Result of test run 1 from the web server via GET. </p>
+
+<p>The configuration of the users and testsets is done in the database. An initial working config is created by --reset The relevant tables are: Client, Test_Set and Test
+The client table contains the clients, their test set (each client has an unique test set) and the flag "admin" which decides whether the user has the right to see the revoked keys of other users
+The table contains the ids and descriptions of the existing Test_Set.
+The table Test says which test should be executed with which parameters in which tests set. The type describes, weather the test should be executed synchron (0), asynchron (1) or is a global test (2)</p>
       </section>
     </div>
 
