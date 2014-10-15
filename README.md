@@ -54,6 +54,8 @@ The client table contains the clients, their test set (each client has an unique
 The table contains the ids and descriptions of the existing Test_Set.
 The table Test says which test should be executed with which parameters in which tests set. The type describes, weather the test should be executed synchron (0), asynchron (1) or is a global test (2)
 
+Bisher läuft / lief KeyCheck noch nie auf einem Apache Web-Server. Das Deployment von Flask-Applikationen wird hier beschrieben http://flask.pocoo.org/docs/0.10/deploying/
+Dieser Anleitung werde ich folgen. Ob ich als Standardlösung FastCGI oder mod_wsgi vorsehen werde ist noch nicht geklärt. Die Konfigurationsdatei wird momentan im Verzeichnis erwartet, aus dem keycheck.py bzw web.py gestarted wird. Dies wäre ggf. anzupassen für den Apache Webserver anzupassen
 
 
 
